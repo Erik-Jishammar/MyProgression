@@ -5,16 +5,17 @@ import {
   updateSession,
   deleteSession,
 } from "../controllers/sessionController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/exercises", getSessions);
-router.post("/exercises", createSession);
-router.put("/exercises/:id", updateSession);
-router.delete("/exercises/:id", deleteSession);
+router.get("/exercises", authMiddleware, getSessions);
+router.post("/exercises", authMiddleware, createSession);
+router.put("/exercises/:id", authMiddleware, updateSession);
+router.delete("/exercises/:id", authMiddleware, deleteSession);
 
 router.get("/ping", (_req, res) => {
-  res.json({ message: "Servern svarar" });
+  res.json({ message: "Server is running" });
 });
 
 export default router;

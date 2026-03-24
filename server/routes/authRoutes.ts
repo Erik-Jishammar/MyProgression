@@ -1,3 +1,9 @@
-// Define POST /api/auth/signup and /api/auth/login.
+import {Router} from "express";
+import { signup, login } from "../controllers/authController.js";
 
-// dont forget to use authMiddleware.ts and change in index.ts(server)to use new routes
+const router = Router();
+
+router.post("/signup", signup);
+router.post("/login", login);
+
+export default router;

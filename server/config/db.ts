@@ -9,9 +9,9 @@ const client = new MongoClient(uri);
 export async function connectDB(): Promise<void> {
   try {
     await client.connect();
-    console.log("MongoDB ansluten");
+    console.log("MongoDB connected");
   } catch (err) {
-    console.log("Misslyckades med att ansluta till mongoDB", err);
+    console.log("Failed to connect to MongoDB", err);
     throw err;
   }
 }
