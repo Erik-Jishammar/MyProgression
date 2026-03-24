@@ -9,10 +9,10 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/exercises", authMiddleware, getSessions);
-router.post("/exercises", authMiddleware, createSession);
-router.put("/exercises/:id", authMiddleware, updateSession);
-router.delete("/exercises/:id", authMiddleware, deleteSession);
+router.get("/", authMiddleware, getSessions);
+router.post("/", authMiddleware, createSession);
+router.put("/:id", authMiddleware, updateSession);
+router.delete("/:id", authMiddleware, deleteSession);
 
 router.get("/ping", (_req, res) => {
   res.json({ message: "Server is running" });

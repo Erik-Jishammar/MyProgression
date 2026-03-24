@@ -17,7 +17,7 @@ const port = process.env.PORT || 3000;
 app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }));
 app.use(express.json());
 
-app.use("/api", sessionRoutes);
+app.use("/api/sessions", sessionRoutes);
 app.use("/api/auth", authRoutes);
 
 if (process.env.NODE_ENV !== "production") {

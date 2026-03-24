@@ -2,7 +2,7 @@
 import type { Session } from "../../shared/types.js";
 import {authService} from "./authService.js";
 
-export const BASE_URL = import.meta.env.DEV ? "http://localhost:3000/api" : "/api";
+export const BASE_URL = import.meta.env.DEV ? "http://localhost:3000/api/sessions" : "/api/sessions";
 
 // helper function for headers
 function getHeaders(){
@@ -21,14 +21,14 @@ async function handleJson<T>(res: Response): Promise<T> {
 }
 
 export async function getSessions(): Promise<Session[]> {
-  const res = await fetch(`${BASE_URL}/exercises`, {
+  const res = await fetch(`${BASE_URL}`, {
     headers: getHeaders(),
   });
   return handleJson<Session[]>(res);
 }
 
 export async function addSession(session: Session): Promise<Session> {
-  const res = await fetch(`${BASE_URL}/exercises`, {
+  const res = await fetch(`${BASE_URL}`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(session),
@@ -37,7 +37,7 @@ export async function addSession(session: Session): Promise<Session> {
 }
 
 export async function updateSession(id: string, data: Partial<Session>): Promise<{ message: string }> {
-  const res = await fetch(`${BASE_URL}/exercises/${id}`, {
+  const res = await fetch(`${BASE_URL}/${id}`, {
     method: "PUT",
     headers: getHeaders(),
     body: JSON.stringify(data),
@@ -46,7 +46,7 @@ export async function updateSession(id: string, data: Partial<Session>): Promise
 }
 
 export async function deleteSession(id: string): Promise<{ message: string }> {
-  const res = await fetch(`${BASE_URL}/exercises/${id}`, {
+  const res = await fetch(`${BASE_URL}/${id}`, {
     method: "DELETE",
     headers: getHeaders()
   });
