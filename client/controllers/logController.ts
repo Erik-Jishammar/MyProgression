@@ -1,5 +1,6 @@
 import { BASE_URL } from "../services/api.js";
 import type { Exercise, Session } from "../../shared/types.js";
+import { addSession, getSessions } from "../services/api.js";
 
 export function initLogController(
   sessionForm: HTMLFormElement,
@@ -76,14 +77,7 @@ export function initLogController(
     }
 
     try {
-      const res = await fetch(`${BASE_URL}/exercises`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(currentSession),
-      });
-      const data: Session = await res.json();
-
-      logData.push(data);
+      const data = await addSession(currentSession);
 
       // Clear the log list
       if (logList) logList.innerHTML = "";
@@ -108,10 +102,7 @@ export function initLogController(
   // Fetch sessions
   async function fetchSessions(): Promise<void> {
     try {
-      const res = await fetch(`${BASE_URL}/exercises`);
-      if (res.ok) {
-        logData = await res.json();
-      }
+      logData = await getSessions();
     } catch (error) {
       console.error("Could not fetch exercises:", error);
     }

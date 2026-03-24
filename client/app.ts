@@ -5,17 +5,21 @@ import { renderProfilePage } from "./pages/profilePage.js";
 import { renderLoginPage } from "./pages/loginPage.js";
 import {initLoginController} from "./controllers/loginController.js";
 import {authService} from "./services/authService.js";
+import { renderSignupPage } from "./pages/signupPage.js";
+import {initSignupController} from "./controllers/signupController.js";
+
 const views: Record<string, (container: HTMLElement) => void> = {
   log: renderLogPage,
   history: renderTrainingHistoryPage,
   generator: renderPassGeneratorPage,
   profile: renderProfilePage,
   login: renderLoginPage,
+  signup: renderSignupPage,
 };
 
 export function navigateTo(page: string) {
 
-  if(page !== "login" && !authService.isAuthenticated()){
+  if(page !== "login" && page !== "signup" && !authService.isAuthenticated()){
     return navigateTo("login");
   }
 
@@ -29,6 +33,9 @@ export function navigateTo(page: string) {
 
     if (page === "login") {
       initLoginController();
+    }
+    if (page === "signup") {
+      initSignupController();
     }
   } else {
     app.innerHTML = "<h2>Page not found</h2>";

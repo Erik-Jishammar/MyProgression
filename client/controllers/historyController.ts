@@ -1,13 +1,12 @@
 import { BASE_URL } from "../services/api.js";
 import type { Session } from "../../shared/types.js";
+import { getSessions, deleteSession } from "../services/api.js";
 
 export function initHistoryController(container: HTMLElement) {
   // Fetch all sessions
   async function fetchSessions(): Promise<Session[]> {
     try {
-      const res = await fetch(`${BASE_URL}/exercises`);
-      if (!res.ok) throw new Error("Could not fetch workout sessions");
-      return await res.json();
+      return await getSessions();
     } catch (error) {
       console.error("Error fetching sessions", error);
       return [];
@@ -19,16 +18,8 @@ export function initHistoryController(container: HTMLElement) {
     if (!confirm("Are you sure you want to delete this session?")) return;
 
     try {
-      const res = await fetch(`${BASE_URL}/exercises/${id}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        alert("Session has been deleted.");
-        await renderSessions(); // update the list
-      } else {
-        alert("Could not delete the session.");
-      }
+      return await deleteSession(id);
+      
     } catch (error) {
       console.error("Error deleting session:", error);
     }

@@ -3,7 +3,14 @@ import {authService} from "../services/authService.js";
 
 export function initLoginController():void {
   const loginForm = document.getElementById("login-form") as HTMLFormElement;
- 
+  const signupLink = document.getElementById("go-to-signup") as HTMLAnchorElement;
+
+  if (signupLink){
+    signupLink.addEventListener("click", (e: Event) => {
+      e.preventDefault();
+      navigateTo("signup");
+    });
+  }
   
   if (loginForm){
     loginForm.addEventListener("submit", async (e: Event) => {
