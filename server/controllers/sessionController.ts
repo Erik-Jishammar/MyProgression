@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import { getCollection } from "../models/sessionModel.js";
 import type { Session } from "../../shared/types.js";
 
-export const getSessions = async (_req: Request, res: Response) => {
+export const getSessions = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).userId;
     const collection = getCollection();
-    const sessions = await collection.find({}).toArray();
+    const sessions = await collection.find({ userId }).toArray(); // implement user id to only fetch user's sessions
     res.json(sessions);
   } catch (error) {
     console.error("Problem fetching from database", error);
@@ -23,6 +24,7 @@ export const createSession = async (
 
     if (!newSession._id) newSession._id = Date.now().toString();
     newSession.exercises = newSession.exercises || [];
+    newSession.userId = (req as any).userId; // attach user id
 
     await collection.insertOne(newSession);
     res.json(newSession);
@@ -40,8 +42,9 @@ export const updateSession = async (
     const collection = getCollection();
     const { id } = req.params;
     const updateData = req.body;
+    const userId = (req as any).userId;
 
-    await collection.updateOne({ _id: id }, { $set: updateData });
+    await collection.updateOne({ _id: id, userId }, { $set: updateData });
 
     res.json({ message: "Session updated" });
   } catch (error) {
@@ -57,8 +60,9 @@ export const deleteSession = async (
   try {
     const collection = getCollection();
     const { id } = req.params;
+    const userId = (req as any).userId;
 
-    await collection.deleteOne({ _id: id });
+    await collection.deleteOne({ _id: id, userId });
 
     res.json({ message: "Session deleted" });
   } catch (error) {
