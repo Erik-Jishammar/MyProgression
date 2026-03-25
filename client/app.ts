@@ -7,6 +7,7 @@ import {initLoginController} from "./controllers/loginController.js";
 import {authService} from "./services/authService.js";
 import { renderSignupPage } from "./pages/signupPage.js";
 import {initSignupController} from "./controllers/signupController.js";
+import { renderNavbar } from "./components/navbar.js";
 
 const views: Record<string, (container: HTMLElement) => void> = {
   log: renderLogPage,
@@ -22,6 +23,8 @@ export function navigateTo(page: string) {
   if(page !== "login" && page !== "signup" && !authService.isAuthenticated()){
     return navigateTo("login");
   }
+
+  renderNavbar();
 
   const app = document.getElementById("app");
   if (!app) return;
