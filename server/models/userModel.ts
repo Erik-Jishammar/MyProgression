@@ -1,24 +1,11 @@
-import {Collection} from "mongodb";
-import {client} from "../config/db.js";
-import type {User} from "../../shared/types.js";
+import mongoose, { Schema } from "mongoose";
+import { User as UserType } from "../../shared/types.js";
 
+const userSchema = new Schema<UserType>({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+}, { timestamps: true });
 
-let collection: Collection<User>;
+const User = mongoose.model<UserType>("User", userSchema);
 
-export async function getCollection(): Promise<Collection<User>> {
-    if (!collection) {
-        collection = client.db("workout").collection("users");
-    }
-    return collection;
-}
-// helper functions
-// check if email already exists
-export async function findUserByEmail(email: string): Promise<User | null> {
-    const collection = await getCollection();
-    return collection.findOne({ email });
-}
-// create user
-export async function createUser(user: User): Promise<void> {
-  const collection = await getCollection();
-  await collection.insertOne(user);
-}
+export default User;

@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
-import { getCollection } from "../models/sessionModel.js";
-import type { Session } from "../../shared/types.js";
+import Session from "../models/sessionModel.js";
+import type { Session as SessionType } from "../../shared/types.js";
 
 export const getSessions = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const collection = getCollection();
-    const sessions = await collection.find({ userId }).toArray(); // implement user id to only fetch user's sessions
+    const sessions = await Session.find({ userId });
     res.json(sessions);
   } catch (error) {
     console.error("Problem fetching from database", error);
@@ -15,19 +14,30 @@ export const getSessions = async (req: Request, res: Response) => {
 };
 
 export const createSession = async (
-  req: Request<{}, {}, Session>,
+  req: Request<{}, {}, SessionType>,
   res: Response
 ) => {
   try {
-    const collection = getCollection();
-    const newSession: Session = req.body;
+    const sessionData = req.body;
+    const userId = (req as any).userId;
 
-    if (!newSession._id) newSession._id = Date.now().toString();
-    newSession.exercises = newSession.exercises || [];
-    newSession.userId = (req as any).userId; // attach user id
+    // Strip out _id from session and exercises to let mongoose generate correct ObjectIds
+    // To fix error -> frontend sends timestamp-based strings
+    const { _id, ...restOfSession } = sessionData as any;
+    
+    if (restOfSession.exercises) {
+      restOfSession.exercises = restOfSession.exercises.map((ex: any) => {
+        const { _id, ...restOfEx } = ex; // Remove frontend-generated _id
+        return restOfEx;
+      });
+    }
 
-    await collection.insertOne(newSession);
-    res.json(newSession);
+    const newSession = await Session.create({
+      ...restOfSession,
+      userId,
+    });
+
+    res.status(201).json(newSession);
   } catch (error) {
     console.error("Problem saving to database", error);
     res.status(500).json({ error: "Could not save session" });
@@ -35,18 +45,28 @@ export const createSession = async (
 };
 
 export const updateSession = async (
-  req: Request<{ id: string }, {}, Partial<Session>>,
+  req: Request<{ id: string }, {}, Partial<SessionType>>,
   res: Response
 ) => {
   try {
-    const collection = getCollection();
     const { id } = req.params;
     const updateData = req.body;
     const userId = (req as any).userId;
 
-    await collection.updateOne({ _id: id, userId }, { $set: updateData });
+    // For upd, make sure we dont try to "update" the _id field
+    const { _id, ...cleanUpdateData } = updateData as any;
 
-    res.json({ message: "Session updated" });
+    const updatedSession = await Session.findOneAndUpdate(
+      { _id: id, userId },
+      { $set: cleanUpdateData },
+      { new: true }
+    );
+
+    if (!updatedSession) {
+      return res.status(404).json({ error: "Session not found or unauthorized" });
+    }
+
+    res.json(updatedSession);
   } catch (error) {
     console.error("Problem updating session", error);
     res.status(500).json({ error: "Could not update session" });
@@ -58,11 +78,14 @@ export const deleteSession = async (
   res: Response
 ) => {
   try {
-    const collection = getCollection();
     const { id } = req.params;
     const userId = (req as any).userId;
 
-    await collection.deleteOne({ _id: id, userId });
+    const result = await Session.deleteOne({ _id: id, userId });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Session not found or unauthorized" });
+    }
 
     res.json({ message: "Session deleted" });
   } catch (error) {

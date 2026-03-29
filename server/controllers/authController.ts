@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { validateAuth } from "../../shared/validators.js";
-import { findUserByEmail, createUser } from "../models/userModel.js";
+import User from "../models/userModel.js";
 
 // user registration
 export const signup = async (req: Request, res: Response) => { 
@@ -15,18 +15,17 @@ export const signup = async (req: Request, res: Response) => {
             return res.status(400).json({ errors });
         }
         // check if user already exists
-        const user = await findUserByEmail(email);
+        const user = await User.findOne({email});
         if (user) {
             return res.status(400).json({ error: "User already exists" });
         }
         // hash password for safety
         const hashedPassword = await bcrypt.hash(password, 10);
         // create new user and save to db
-        const newUser: any = {
+        const newUser = await User.create({
             email,
             password: hashedPassword,
-        };
-        await createUser(newUser);
+        });
 
         // generate a JWT token for the user
         const token = jwt.sign(
@@ -58,7 +57,7 @@ export const login = async (req: Request, res: Response) => {
             return res.status(400).json({ errors });
         }
         // find user in db
-        const user: any = await findUserByEmail(email);
+        const user: any = await User.findOne({email});
         if (!user) {
             return res.status(401).json({ error: "Invalid credentials" });
         }

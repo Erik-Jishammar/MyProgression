@@ -6,7 +6,7 @@ import { createServer as createViteServer } from "vite";
 import authRoutes from "./routes/authRoutes.js";
 
 import sessionRoutes from "./routes/sessionRoutes.js";
-import { connectDB } from "./config/db.js";
+import connectDB from "./config/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
